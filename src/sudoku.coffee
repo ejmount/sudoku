@@ -29,12 +29,17 @@ createBox = (c) ->
   text.setAttribute("value", "")
   c.appendChild(text)
 
+isValidGrid = (G) ->
+  G.every (a) ->
+    a.every (value) ->
+      value == null or parseInt(value) in [1..9]
+
 deducePossibilities = (fixedValues) ->
-  if not fixedValues.length == 9
+  if not fixedValues?.length == 9
     throw new RangeError()
   if not (fixedValues.every (x) -> x instanceof Array and x.length == 9)
     throw new RangeError()
-  if not (fixedValues.every (a) -> a.every (value) -> value == null or parseInt(value) in [1..9])
+  if not isValidGrid(fixedValues)
     throw new RangeError()
 
   possibilities = ([1..9] for r in [0...9] for c in [0...9])
@@ -60,7 +65,6 @@ deducePossibilities = (fixedValues) ->
     for c in [0...9]
       finalDeductions[r][c] = if possibilities[r][c].length == 1 then possibilities[r][c][0] else null
   return [finalDeductions, possibilities]
-
 
 refreshAnswers = () ->
   data = document.getElementById("mainTable")
@@ -89,10 +93,8 @@ refreshAnswers = () ->
       else
         results.children[r].children[c].innerHTML = "<small>" + String( possibilities[r][c].length) + "</small>"
 
-
 window.onload = () ->
   table = document.getElementById("mainTable")
   createTable(table, createBox)
   results = document.getElementById("resultsTable")
   createTable(results, (c) -> c.innerHTML = 0)
-
